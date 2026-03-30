@@ -235,6 +235,27 @@ const raw: [string, string, string][] = [
   ["ERA rule: ALL characteristics", "young/old/tall/short/small/big/difficult/easy/strict/fair = ERA. Always SER → ERA for what things WERE LIKE", "era-vs-estaba"],
   ["FUE rule: specific events", "party/trip/move/wedding/moment = FUE. One event you can point to and judge → FUE", "preterite-imperfect"],
   ["ERA vs FUE test", "Can you point to ONE event? → FUE. Was it ongoing/general? → ERA. La vida era difícil (general) vs La mudanza fue difícil (one event)", "preterite-imperfect"],
+  // ─── Day 3: Por vs Para ───
+  ["Flores ___ mi esposa", "PARA mi esposa (recipient = PARA)", "por-vs-para"],
+  ["Gracias ___ ayudarme", "POR ayudarme (because of = POR)", "por-vs-para"],
+  ["Viví en China ___ 12 años", "POR 12 años (duration = POR. POR + number + time = ALWAYS POR)", "por-vs-para"],
+  ["Estudio español ___ enseñar", "PARA enseñar (purpose / \"in order to\" = PARA)", "por-vs-para"],
+  ["El informe es ___ el lunes", "PARA el lunes (deadline / \"by when\" = PARA)", "por-vs-para"],
+  ["Caminamos ___ el parque", "POR el parque (through a place = POR. PORtal = through)", "por-vs-para"],
+  ["Pagué 200 lucas ___ el celular", "POR el celular (exchange = POR)", "por-vs-para"],
+  ["Trabajo ___ una empresa de AI", "PARA una empresa (employer/recipient of work = PARA)", "por-vs-para"],
+  ["No pude dormir ___ el ruido", "POR el ruido (cause / \"because of\" = POR)", "por-vs-para"],
+  ["Este regalo es ___ ti", "PARA ti (recipient = PARA)", "por-vs-para"],
+  ["Duration: ___ 5 años", "POR 5 años (how long = POR. Never PARA for duration!)", "por-vs-para"],
+  ["Deadline: ___ el viernes", "PARA el viernes (by when = PARA. Never POR for deadlines!)", "por-vs-para"],
+  ["Manejé ___ la autopista", "POR la autopista (through/along = POR)", "por-vs-para"],
+  ["Trabaja ___ Google", "PARA Google (employer = PARA)", "por-vs-para"],
+  ["Mandé el documento ___ email", "POR email (communication method = POR: por email, por teléfono, por WhatsApp)", "por-vs-para"],
+  ["Trabajo ___ mi familia (motivation)", "POR mi familia (for the sake of / because of = POR)", "por-vs-para"],
+  ["Me mudé ___ China (destination)", "PARA China (destination / heading toward = PARA)", "por-vs-para"],
+  ["POR vs PARA rule: through + goal", "POR the road, PARA the goal. Caminé POR el centro PARA llegar al metro.", "por-vs-para"],
+  ["POR vs PARA rule: duration vs deadline", "POR + number + time (por 3 años). PARA + date (para el viernes).", "por-vs-para"],
+  ["POR vs PARA quick test", "\"throughout/during\" → POR. \"by/due\" → PARA. \"through\" → POR. \"in order to\" → PARA.", "por-vs-para"],
 ];
 
 export const cards: Card[] = raw.map(([front, back, tags]) => ({
