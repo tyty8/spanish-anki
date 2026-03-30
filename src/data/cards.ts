@@ -1,8 +1,17 @@
 export interface Card {
-  id: number;
+  id: string; // stable hash of front text — safe to reorder/add/remove
   front: string;
   back: string;
   tags: string[];
+}
+
+// Simple stable hash: turns any string into a short hex ID
+function stableId(s: string): string {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return (h >>> 0).toString(16).padStart(8, "0");
 }
 
 const raw: [string, string, string][] = [
@@ -228,8 +237,8 @@ const raw: [string, string, string][] = [
   ["ERA vs FUE test", "Can you point to ONE event? → FUE. Was it ongoing/general? → ERA. La vida era difícil (general) vs La mudanza fue difícil (one event)", "preterite-imperfect"],
 ];
 
-export const cards: Card[] = raw.map(([front, back, tags], i) => ({
-  id: i + 1,
+export const cards: Card[] = raw.map(([front, back, tags]) => ({
+  id: stableId(front),
   front,
   back,
   tags: tags.split(",").map((t) => t.trim()),

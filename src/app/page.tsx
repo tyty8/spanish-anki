@@ -18,7 +18,7 @@ type View = "home" | "study" | "stats";
 export default function App() {
   const [view, setView] = useState<View>("home");
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  const [progress, setProgress] = useState<Record<number, CardProgress>>({});
+  const [progress, setProgress] = useState<Record<string, CardProgress>>({});
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function App() {
   );
 
   const handleReview = useCallback(
-    (cardId: number, rating: Rating) => {
+    (cardId: string, rating: Rating) => {
       setProgress((prev) => {
         const cardProg = getCardProgress(prev, cardId);
         const updated = reviewCard(cardProg, rating);
@@ -217,8 +217,8 @@ function StudyView({
   onBack,
 }: {
   cards: Card[];
-  progress: Record<number, CardProgress>;
-  onReview: (cardId: number, rating: Rating) => void;
+  progress: Record<string, CardProgress>;
+  onReview: (cardId: string, rating: Rating) => void;
   onBack: () => void;
 }) {
   const [flipped, setFlipped] = useState(false);
@@ -365,7 +365,7 @@ function StatsView({
   onBack,
   onReset,
 }: {
-  progress: Record<number, CardProgress>;
+  progress: Record<string, CardProgress>;
   cards: Card[];
   onBack: () => void;
   onReset: () => void;

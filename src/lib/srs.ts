@@ -1,7 +1,7 @@
 // SM-2 Spaced Repetition Algorithm (same as Anki)
 
 export interface CardProgress {
-  cardId: number;
+  cardId: string;
   easeFactor: number; // starts at 2.5
   interval: number; // days
   repetitions: number;
@@ -23,7 +23,7 @@ export function getRatingLabel(rating: Rating): string {
   return RATING_LABELS[rating];
 }
 
-export function getNewProgress(cardId: number): CardProgress {
+export function getNewProgress(cardId: string): CardProgress {
   return {
     cardId,
     easeFactor: 2.5,
@@ -89,7 +89,7 @@ export function reviewCard(progress: CardProgress, rating: Rating): CardProgress
 // Storage
 const STORAGE_KEY = "spanish-srs-progress";
 
-export function loadAllProgress(): Record<number, CardProgress> {
+export function loadAllProgress(): Record<string, CardProgress> {
   if (typeof window === "undefined") return {};
   try {
     const data = localStorage.getItem(STORAGE_KEY);
@@ -99,23 +99,23 @@ export function loadAllProgress(): Record<number, CardProgress> {
   }
 }
 
-export function saveAllProgress(progress: Record<number, CardProgress>) {
+export function saveAllProgress(progress: Record<string, CardProgress>) {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
 }
 
 export function getCardProgress(
-  all: Record<number, CardProgress>,
-  cardId: number
+  all: Record<string, CardProgress>,
+  cardId: string
 ): CardProgress {
   return all[cardId] || getNewProgress(cardId);
 }
 
 // Get cards due for review, sorted by priority
 export function getDueCardIds(
-  all: Record<number, CardProgress>,
-  cardIds: number[]
-): number[] {
+  all: Record<string, CardProgress>,
+  cardIds: string[]
+): string[] {
   const now = Date.now();
 
   // New cards (never reviewed)
@@ -134,8 +134,8 @@ export function getDueCardIds(
 }
 
 export function getStats(
-  all: Record<number, CardProgress>,
-  cardIds: number[]
+  all: Record<string, CardProgress>,
+  cardIds: string[]
 ) {
   const now = Date.now();
   let newCount = 0;
