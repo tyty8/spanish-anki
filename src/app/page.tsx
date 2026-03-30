@@ -8,6 +8,7 @@ import {
   getCardProgress,
   reviewCard,
   getDueCardIds,
+  getExtraStudyIds,
   getStats,
   type CardProgress,
   type Rating,
@@ -224,16 +225,31 @@ function StudyView({
   const [flipped, setFlipped] = useState(false);
   const [animClass, setAnimClass] = useState("card-next");
   const [sessionDone, setSessionDone] = useState(0);
+  const [extraStudy, setExtraStudy] = useState(false);
+  const [extraIndex, setExtraIndex] = useState(0);
+
+  const allIds = useMemo(() => filteredCards.map((c) => c.id), [filteredCards]);
 
   const dueIds = useMemo(
-    () => getDueCardIds(progress, filteredCards.map((c) => c.id)),
-    [progress, filteredCards]
+    () => getDueCardIds(progress, allIds),
+    [progress, allIds]
+  );
+
+  const extraIds = useMemo(
+    () => (extraStudy ? getExtraStudyIds(progress, allIds) : []),
+    [extraStudy, progress, allIds]
   );
 
   const currentCard = useMemo(() => {
-    if (dueIds.length === 0) return null;
-    return filteredCards.find((c) => c.id === dueIds[0]) || null;
-  }, [dueIds, filteredCards]);
+    if (!extraStudy) {
+      if (dueIds.length === 0) return null;
+      return filteredCards.find((c) => c.id === dueIds[0]) || null;
+    }
+    // Extra study: cycle through weakest cards
+    if (extraIds.length === 0) return null;
+    const id = extraIds[extraIndex % extraIds.length];
+    return filteredCards.find((c) => c.id === id) || null;
+  }, [dueIds, extraIds, extraStudy, extraIndex, filteredCards]);
 
   const handleRate = useCallback(
     (rating: Rating) => {
@@ -244,23 +260,39 @@ function StudyView({
         setFlipped(false);
         setAnimClass("card-next");
         setSessionDone((d) => d + 1);
+        if (extraStudy) setExtraIndex((i) => i + 1);
       }, 200);
     },
-    [currentCard, onReview]
+    [currentCard, onReview, extraStudy]
   );
 
   // Session complete
   if (!currentCard) {
+    const canStudyMore = !extraStudy && allIds.some((id) => progress[id]?.repetitions > 0);
     return (
       <div className="h-full flex flex-col items-center justify-center px-6 text-center fade-in">
-        <div className="text-5xl mb-4">&#127881;</div>
-        <h2 className="text-2xl font-bold mb-2">Session Complete!</h2>
+        <div className="text-5xl mb-4">{extraStudy ? "💪" : "🎉"}</div>
+        <h2 className="text-2xl font-bold mb-2">
+          {extraStudy ? "Extra Session Done!" : "Session Complete!"}
+        </h2>
         <p className="text-slate-400 mb-2">
           You reviewed {sessionDone} card{sessionDone !== 1 ? "s" : ""}
         </p>
+        {canStudyMore && (
+          <button
+            onClick={() => {
+              setExtraStudy(true);
+              setExtraIndex(0);
+              setSessionDone(0);
+            }}
+            className="mt-4 px-8 py-3 rounded-2xl bg-orange-600 text-white font-bold active:bg-orange-700"
+          >
+            Study More (weakest cards)
+          </button>
+        )}
         <button
           onClick={onBack}
-          className="mt-6 px-8 py-3 rounded-2xl bg-blue-600 text-white font-bold active:bg-blue-700"
+          className="mt-3 px-8 py-3 rounded-2xl bg-blue-600 text-white font-bold active:bg-blue-700"
         >
           Back to Home
         </button>
@@ -279,7 +311,9 @@ function StudyView({
           &larr; Back
         </button>
         <div className="text-slate-500 text-sm">
-          {sessionDone} done &middot; {dueIds.length} left
+          {sessionDone} done {extraStudy
+            ? <>&middot; <span className="text-orange-400">extra</span></>
+            : <>&middot; {dueIds.length} left</>}
         </div>
       </div>
 

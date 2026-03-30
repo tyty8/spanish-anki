@@ -133,6 +133,26 @@ export function getDueCardIds(
   return [...lapsed, ...normalDue, ...newCards];
 }
 
+// Get all cards sorted by weakness — for extra study after finishing due cards
+export function getExtraStudyIds(
+  all: Record<string, CardProgress>,
+  cardIds: string[]
+): string[] {
+  // Only include cards that have been reviewed at least once
+  const reviewed = cardIds.filter((id) => all[id] && all[id].repetitions > 0);
+
+  return reviewed.sort((a, b) => {
+    const pa = all[a];
+    const pb = all[b];
+    // Lapsed cards first
+    if (pa.lapses !== pb.lapses) return pb.lapses - pa.lapses;
+    // Then lowest ease factor (hardest cards)
+    if (pa.easeFactor !== pb.easeFactor) return pa.easeFactor - pb.easeFactor;
+    // Then shortest interval (least learned)
+    return pa.interval - pb.interval;
+  });
+}
+
 export function getStats(
   all: Record<string, CardProgress>,
   cardIds: string[]
