@@ -6,6 +6,11 @@
   user-select: none;
 }
 
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 @keyframes flip-in {
   from { transform: rotateX(90deg); opacity: 0; }
   to { transform: rotateX(0deg); opacity: 1; }
