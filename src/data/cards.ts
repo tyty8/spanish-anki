@@ -256,6 +256,41 @@ const raw: [string, string, string][] = [
   ["POR vs PARA rule: through + goal", "POR the road, PARA the goal. Caminé POR el centro PARA llegar al metro.", "por-vs-para"],
   ["POR vs PARA rule: duration vs deadline", "POR + number + time (por 3 años). PARA + date (para el viernes).", "por-vs-para"],
   ["POR vs PARA quick test", "\"throughout/during\" → POR. \"by/due\" → PARA. \"through\" → POR. \"in order to\" → PARA.", "por-vs-para"],
+  // ─── Day 3: Gustar / Encantar ───
+  ["\"I like coffee\" (gustar)", "Me gusta EL café (me = I, gusta = singular thing, always EL/LA for general likes)", "gustar"],
+  ["\"We like the beaches\" (gustar)", "Nos gustan las playas (nos = we, gustan = plural thing)", "gustar"],
+  ["\"My kids love pizza\" (encantar)", "A mis hijos les encanta LA pizza (les = them, encanta = singular, LA for general)", "gustar"],
+  ["\"She doesn't like the cold\" (gustar)", "A ella no le gusta el frío (le = her, A ella for emphasis)", "gustar"],
+  ["\"We love living in Chile\" (encantar)", "A mi esposa y a mí nos encanta vivir en Chile (infinitive = always gusta/encanta singular)", "gustar"],
+  ["Gustar: how many verb forms?", "Only TWO: gusta (1 thing / infinitive) + gustan (many things). NEVER conjugate for the person!", "gustar"],
+  ["Gustar: pronoun list", "me (I) / te (you) / le (him-her) / nos (we) / les (them). These NEVER change the verb!", "gustar"],
+  ["Gustar: general likes need ___?", "EL/LA/LOS/LAS — me gusta EL café, les gustan LOS gatos (NEVER: me gusta café)", "gustar"],
+  ["Gustar: \"A + person\" rule", "When you NAME the person, add A: A mi hija le gusta / A nosotros nos encanta", "gustar"],
+  ["Gustar vs encantar", "gustar = like / encantar = LOVE. Same grammar pattern. Me gusta vs me encanta.", "gustar"],
+  ["Gustar: infinitive verb = ___?", "Always SINGULAR: me gusta vivir / nos gusta levantarnos / te gusta cocinar (never gustan)", "gustar"],
+  ["\"Do you like Chilean food?\"", "¿Te gusta la comida chilena? (te = you, gusta = singular, LA for general)", "gustar"],
+  ["\"My daughter likes cats\"", "A mi hija le gustan los gatos (le = her, gustan = plural, LOS for general)", "gustar"],
+  // ─── Day 3: Articles & Contractions ───
+  ["de + el =", "del (cerca DEL parque / lejos DEL centro — NEVER \"de el\")", "grammar"],
+  ["hasta vs para (deadline)", "hasta = UNTIL (keeps going). para = BY (deadline). \"Para el viernes\" = by Friday. \"Hasta el viernes\" = until Friday.", "grammar"],
+  ["Articles for general categories", "Always use el/la/los/las: me gusta EL café, no me gusta EL tráfico, les gustan LAS verduras", "grammar"],
+  // ─── Day 3: Conjugation Endings ───
+  ["-ar verb: yo vs él", "-o = yo (trabajo) / -a = él/ella (trabaja). Don't mix up!", "conjugation"],
+  ["-er/-ir verb: yo vs él", "-o = yo (como/vivo) / -e = él/ella (come/vive). Don't mix up!", "conjugation"],
+  ["-ar verb: tú vs él", "-as = tú (trabajas) / -a = él (trabaja). -es = tú for -er/-ir (comes/vives)", "conjugation"],
+  ["Plural ellos: -ar verbs", "-an ending: hablan / trabajan / escuchan (NOT habla/trabaja for plural!)", "conjugation"],
+  ["Plural ellos: -er/-ir verbs", "-en ending: entienden / comen / viven (NOT entiende/come for plural!)", "conjugation"],
+  ["tiene (spelling!)", "t-i-e-n-e (NOT tenie, teine, or tiene). Él tiene / ella tiene.", "spelling"],
+  ["quiere (spelling!)", "qu-i-e-r-e (NOT queire). Ella quiere un perro.", "spelling"],
+  // ─── Day 3: New Vocabulary ───
+  ["vegetables", "verduras (feminine: LAS verduras)", "vocab"],
+  ["too much", "demasiado (mucho = a lot, demasiado = TOO much)", "vocab"],
+  ["battery", "batería (feminine: UNA batería)", "vocab"],
+  ["library", "biblioteca (NOT librería = bookstore!)", "vocab"],
+  ["zoo", "zoológico (or: zoo in casual speech)", "vocab"],
+  ["Chilean (adjective)", "chileno/a (NOT chileano — no extra A)", "spelling"],
+  ["empanadas (spelling)", "empanadas (em-pa-na-das NOT empandas)", "spelling"],
+  ["traffic", "tráfico (ONE F, accent on trá — NOT traffico)", "spelling"],
 ];
 
 export const cards: Card[] = raw.map(([front, back, tags]) => ({

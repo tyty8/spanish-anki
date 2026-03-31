@@ -16,7 +16,6 @@ import {
 import {
   classifyErrors,
   extractBlankAnswer,
-  type MatchResult,
 } from "@/lib/matching";
 import {
   recordReview,
@@ -33,7 +32,7 @@ import {
   type SessionMode,
   type SessionConfig,
 } from "@/lib/sessionModes";
-import TypingInput from "@/components/TypingInput";
+import MultipleChoice from "@/components/MultipleChoice";
 import FillInBlank from "@/components/FillInBlank";
 import AudioButton from "@/components/AudioButton";
 import DailyStreakBanner from "@/components/DailyStreakBanner";
@@ -323,6 +322,7 @@ function StudyView({
   const [animClass, setAnimClass] = useState("card-next");
   const [sessionDone, setSessionDone] = useState(0);
   const [typingSubmitted, setTypingSubmitted] = useState(false);
+  const [mcRating, setMcRating] = useState<Rating | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [startTime] = useState(Date.now());
   const [elapsed, setElapsed] = useState(0);
@@ -343,7 +343,36 @@ function StudyView({
   }, [currentIndex, cardIds, allCards]);
 
   const isBlankCard = currentCard?.front.includes("___") ?? false;
-  const useTyping = sessionConfig.typingEnabled && !isBlankCard;
+  const useMultipleChoice = sessionConfig.typingEnabled && !isBlankCard;
+
+  // Generate 3 distractors from same-tag cards, falling back to any cards
+  const distractors = useMemo(() => {
+    if (!currentCard || !useMultipleChoice) return [];
+    const currentTags = currentCard.tags;
+    const sameTag = allCards.filter(
+      (c) =>
+        c.id !== currentCard.id &&
+        c.tags.some((t) => currentTags.includes(t))
+    );
+    const others = allCards.filter(
+      (c) =>
+        c.id !== currentCard.id &&
+        !c.tags.some((t) => currentTags.includes(t))
+    );
+    const pool = [...sameTag, ...others];
+    // Shuffle and pick 3 unique backs
+    const shuffled = pool.sort(() => Math.random() - 0.5);
+    const picks: string[] = [];
+    const seen = new Set<string>();
+    seen.add(currentCard.back);
+    for (const c of shuffled) {
+      if (!seen.has(c.back) && picks.length < 3) {
+        seen.add(c.back);
+        picks.push(c.back);
+      }
+    }
+    return picks;
+  }, [currentCard, useMultipleChoice, allCards]);
 
   const advance = useCallback(
     (rating: Rating) => {
@@ -353,26 +382,13 @@ function StudyView({
         onReview(currentCard.id, rating);
         setFlipped(false);
         setTypingSubmitted(false);
+        setMcRating(null);
         setAnimClass("card-next");
         setSessionDone((d) => d + 1);
         setCurrentIndex((i) => i + 1);
       }, 200);
     },
     [currentCard, onReview]
-  );
-
-  const handleTypingSubmit = useCallback(
-    (typed: string, result: MatchResult, rating: Rating) => {
-      if (!currentCard) return;
-      setTypingSubmitted(true);
-
-      // Track errors
-      const errors = classifyErrors(typed, currentCard.back, currentCard.tags);
-      for (const err of errors) {
-        recordError(err);
-      }
-    },
-    [currentCard]
   );
 
   // Session complete
@@ -425,8 +441,8 @@ function StudyView({
           key={currentCard.id + currentIndex}
           className={`w-full max-w-sm ${animClass}`}
         >
-          {/* Flip mode (no typing) */}
-          {!useTyping && !isBlankCard && (
+          {/* Flip mode (no multiple choice) */}
+          {!useMultipleChoice && !isBlankCard && (
             <button
               onClick={() => !flipped && setFlipped(true)}
               className="w-full min-h-[240px] bg-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center text-center active:bg-slate-750 transition-colors"
@@ -459,8 +475,8 @@ function StudyView({
             </button>
           )}
 
-          {/* Typing mode */}
-          {useTyping && (
+          {/* Multiple choice mode */}
+          {useMultipleChoice && (
             <div className="bg-slate-800 rounded-3xl p-6 space-y-4">
               <div className="text-xs text-slate-500 uppercase tracking-wider text-center">
                 {currentCard.tags.join(" / ")}
@@ -473,9 +489,23 @@ function StudyView({
                   <AudioButton cardId={currentCard.id} size="sm" />
                 </div>
               )}
-              <TypingInput
-                expected={currentCard.back}
-                onSubmit={handleTypingSubmit}
+              <MultipleChoice
+                correctAnswer={currentCard.back}
+                distractors={distractors}
+                onSubmit={(chosen, isCorrect, rating) => {
+                  setTypingSubmitted(true);
+                  setMcRating(rating);
+                  if (!isCorrect) {
+                    const errors = classifyErrors(
+                      chosen,
+                      currentCard.back,
+                      currentCard.tags
+                    );
+                    for (const err of errors) {
+                      recordError(err);
+                    }
+                  }
+                }}
               />
             </div>
           )}
@@ -508,7 +538,18 @@ function StudyView({
 
       {/* Rating buttons */}
       <div className="px-4 pb-8 pt-4">
-        {flipped || typingSubmitted ? (
+        {useMultipleChoice && typingSubmitted && mcRating !== null ? (
+          <button
+            onClick={() => advance(mcRating)}
+            className={`w-full py-4 rounded-xl text-white font-bold text-lg transition-colors ${
+              mcRating >= 2
+                ? "bg-green-600 active:bg-green-700"
+                : "bg-red-600 active:bg-red-700"
+            }`}
+          >
+            {mcRating >= 2 ? "Correct! Next →" : "Wrong — Next →"}
+          </button>
+        ) : flipped || typingSubmitted ? (
           <div className="grid grid-cols-4 gap-2">
             <RatingButton
               rating={0}
@@ -536,7 +577,7 @@ function StudyView({
             />
           </div>
         ) : (
-          !useTyping &&
+          !useMultipleChoice &&
           !isBlankCard && (
             <div className="text-center text-slate-600 text-sm py-4">
               Tap the card to see the answer
