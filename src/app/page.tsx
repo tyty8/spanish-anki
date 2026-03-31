@@ -41,10 +41,12 @@ import SessionModeSelector from "@/components/SessionModeSelector";
 import TopicProgressMap from "@/components/TopicProgressMap";
 import ErrorPatternDashboard from "@/components/ErrorPatternDashboard";
 import VerbPractice from "@/components/VerbPractice";
+import SentenceBuilder from "@/components/SentenceBuilder";
 import { verbs } from "@/data/verbs";
+import { wordBank } from "@/data/wordbank";
 import type { Tense } from "@/lib/conjugation";
 
-type View = "home" | "study" | "stats" | "topics" | "pick-tag" | "pick-tense" | "verbs";
+type View = "home" | "study" | "stats" | "topics" | "pick-tag" | "pick-tense" | "verbs" | "pick-sentence-tense" | "sentences";
 
 export default function App() {
   const [view, setView] = useState<View>("home");
@@ -52,6 +54,7 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
   const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
   const [verbTense, setVerbTense] = useState<Tense | "mixed">("mixed");
+  const [sentenceTense, setTense] = useState<Tense | "mixed">("mixed");
 
   useEffect(() => {
     setProgress(loadAllProgress());
@@ -158,6 +161,32 @@ export default function App() {
     );
   }
 
+  if (view === "sentences") {
+    return (
+      <SentenceBuilder
+        wordBank={wordBank}
+        tenseFilter={sentenceTense}
+        onComplete={() => {}}
+        onBack={() => {
+          setView("home");
+          setTense("mixed");
+        }}
+      />
+    );
+  }
+
+  if (view === "pick-sentence-tense") {
+    return (
+      <TensePicker
+        onSelect={(t) => {
+          setTense(t);
+          setView("sentences");
+        }}
+        onBack={() => setView("home")}
+      />
+    );
+  }
+
   if (view === "stats") {
     return (
       <StatsView
@@ -227,6 +256,7 @@ export default function App() {
       onStats={() => setView("stats")}
       onTopics={() => setView("topics")}
       onVerbs={() => setView("pick-tense")}
+      onSentences={() => setView("pick-sentence-tense")}
     />
   );
 }
@@ -242,6 +272,7 @@ function HomeView({
   onStats,
   onTopics,
   onVerbs,
+  onSentences,
 }: {
   stats: ReturnType<typeof getStats>;
   progress: Record<string, CardProgress>;
@@ -250,6 +281,7 @@ function HomeView({
   onDrillWeak: () => void;
   onStats: () => void;
   onVerbs: () => void;
+  onSentences: () => void;
   onTopics: () => void;
 }) {
   const streak = getStreak();
@@ -301,12 +333,20 @@ function HomeView({
           weakCount={weakCardIds.length}
           newCount={stats.newCount}
         />
-        <button
-          onClick={onVerbs}
-          className="w-full py-3 rounded-2xl bg-purple-600 text-white font-bold active:bg-purple-700 transition-colors"
-        >
-          Verb Conjugation Practice
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={onVerbs}
+            className="flex-1 py-3 rounded-2xl bg-purple-600 text-white font-bold active:bg-purple-700 transition-colors text-sm"
+          >
+            Verb Practice
+          </button>
+          <button
+            onClick={onSentences}
+            className="flex-1 py-3 rounded-2xl bg-teal-600 text-white font-bold active:bg-teal-700 transition-colors text-sm"
+          >
+            Sentence Builder
+          </button>
+        </div>
         <div className="flex gap-2">
           <button
             onClick={onStats}
