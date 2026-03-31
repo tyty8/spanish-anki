@@ -40,14 +40,18 @@ import WeakCardDashboard from "@/components/WeakCardDashboard";
 import SessionModeSelector from "@/components/SessionModeSelector";
 import TopicProgressMap from "@/components/TopicProgressMap";
 import ErrorPatternDashboard from "@/components/ErrorPatternDashboard";
+import VerbPractice from "@/components/VerbPractice";
+import { verbs } from "@/data/verbs";
+import type { Tense } from "@/lib/conjugation";
 
-type View = "home" | "study" | "stats" | "topics" | "pick-tag";
+type View = "home" | "study" | "stats" | "topics" | "pick-tag" | "pick-tense" | "verbs";
 
 export default function App() {
   const [view, setView] = useState<View>("home");
   const [progress, setProgress] = useState<Record<string, CardProgress>>({});
   const [loaded, setLoaded] = useState(false);
   const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
+  const [verbTense, setVerbTense] = useState<Tense | "mixed">("mixed");
 
   useEffect(() => {
     setProgress(loadAllProgress());
@@ -127,6 +131,33 @@ export default function App() {
     );
   }
 
+  if (view === "verbs") {
+    return (
+      <VerbPractice
+        verbs={verbs}
+        tenseFilter={verbTense}
+        onComplete={() => {}}
+        onBack={() => {
+          setView("home");
+          setVerbTense("mixed");
+        }}
+        onReview={handleReview}
+      />
+    );
+  }
+
+  if (view === "pick-tense") {
+    return (
+      <TensePicker
+        onSelect={(t) => {
+          setVerbTense(t);
+          setView("verbs");
+        }}
+        onBack={() => setView("home")}
+      />
+    );
+  }
+
   if (view === "stats") {
     return (
       <StatsView
@@ -195,6 +226,7 @@ export default function App() {
       }}
       onStats={() => setView("stats")}
       onTopics={() => setView("topics")}
+      onVerbs={() => setView("pick-tense")}
     />
   );
 }
@@ -209,6 +241,7 @@ function HomeView({
   onDrillWeak,
   onStats,
   onTopics,
+  onVerbs,
 }: {
   stats: ReturnType<typeof getStats>;
   progress: Record<string, CardProgress>;
@@ -216,6 +249,7 @@ function HomeView({
   onStartSession: (mode: SessionMode) => void;
   onDrillWeak: () => void;
   onStats: () => void;
+  onVerbs: () => void;
   onTopics: () => void;
 }) {
   const streak = getStreak();
@@ -267,6 +301,12 @@ function HomeView({
           weakCount={weakCardIds.length}
           newCount={stats.newCount}
         />
+        <button
+          onClick={onVerbs}
+          className="w-full py-3 rounded-2xl bg-purple-600 text-white font-bold active:bg-purple-700 transition-colors"
+        >
+          Verb Conjugation Practice
+        </button>
         <div className="flex gap-2">
           <button
             onClick={onStats}
@@ -795,6 +835,52 @@ function StatsView({
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Tense Picker ───
+
+function TensePicker({
+  onSelect,
+  onBack,
+}: {
+  onSelect: (tense: Tense | "mixed") => void;
+  onBack: () => void;
+}) {
+  const options: { value: Tense | "mixed"; label: string; desc: string; color: string }[] = [
+    { value: "mixed", label: "Mixed", desc: "All tenses randomly", color: "bg-purple-600 active:bg-purple-700" },
+    { value: "presente", label: "Presente", desc: "I speak, he eats, they live", color: "bg-blue-600 active:bg-blue-700" },
+    { value: "preterito", label: "Pretérito", desc: "I spoke, he ate, they lived", color: "bg-green-600 active:bg-green-700" },
+    { value: "imperfecto", label: "Imperfecto", desc: "I used to speak, he used to eat", color: "bg-orange-600 active:bg-orange-700" },
+    { value: "futuro", label: "Futuro", desc: "I will speak, he will eat", color: "bg-red-600 active:bg-red-700" },
+  ];
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="flex items-center px-4 pt-4 pb-2">
+        <button
+          onClick={onBack}
+          className="text-slate-400 active:text-white px-2 py-1"
+        >
+          &larr; Back
+        </button>
+        <h2 className="flex-1 text-center font-bold text-lg pr-12">
+          Pick a Tense
+        </h2>
+      </div>
+      <div className="flex-1 flex flex-col justify-center px-6 pb-6 space-y-3">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => onSelect(opt.value)}
+            className={`w-full rounded-2xl px-6 py-5 text-left text-white transition-colors ${opt.color}`}
+          >
+            <div className="font-bold text-lg">{opt.label}</div>
+            <div className="text-sm opacity-80 mt-1">{opt.desc}</div>
+          </button>
+        ))}
       </div>
     </div>
   );
